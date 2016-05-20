@@ -3,12 +3,13 @@
   font-size: 2em;
   line-height: 1em;
   vertical-align: middle;
+  text-align: center;
 }
 .zhuyin{
     padding: 0em;
   line-height: 1em;
   vertical-align: middle;
-  font-size: 0.8em;
+  font-size: 0.6em;
 }
 .pinyin{
     font-family: Times, "Times New Roman", Georgia, serif;
