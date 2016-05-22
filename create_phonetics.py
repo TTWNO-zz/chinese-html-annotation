@@ -16,6 +16,7 @@ def usage():
 	print("-o, --ontop places phonetics on top of character [only works with one phonetic system]")
 	print("-i --input \"chinese string\"")
 	print("-h, --help this help menu")
+	print("-k, --know \"101\" the characters where a 1 is placed will not be transfered to phonetics in HTML")
 	print("--verbose for debuging (must be placed first)")
 	print("-----------------------------------------------")
 
@@ -26,7 +27,7 @@ def verbose_print(s):
 		pass
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "i:zopvmhta", ["help", "input=", "markup", "vertical", "zhuyin", "pinyin", "accented", "verbose", "ontop", "text"])
+	opts, args = getopt.getopt(sys.argv[1:], "ki:zopvmphta", ["help", "input=", "markup", "vertical", "zhuyin", "pinyin", "accented", "verbose", "ontop", "text", "know="])
 except getopt.GetoptError as err:
 	# print help information and exit:
 	print(err) # will print something like "option -a not recognized"
@@ -42,6 +43,8 @@ vertical = False
 accented = False
 ontop = False
 text = False
+remove_chars = False
+known_chars = []
 
 for o, a in opts:
 	verbose_print(o+" | "+a)
@@ -59,6 +62,12 @@ for o, a in opts:
 		accented = True
 	elif o == "-o" or o == "--ontop":
 		ontop = True
+	elif o == "-k" or o == "--know":
+		remove_chars = True
+		for c in a:
+			verbose_print(a)
+			known_chars.append(c)
+		verbose_print(known_chars)
 	elif o == "-i" or o == "--input":
 		hanziin = a
 		verbose_print(a+" "+hanziin)
@@ -107,6 +116,18 @@ verbose_print(zh_phons)
 verbose_print(pi_phons)
 verbose_print(phonperchar)
 
+if remove_chars:
+	for i in range(0, len(zh_phons)):
+		try:
+			remove = known_chars[i]
+			if remove == "1":
+				if zhuyin:
+					zh_phons[i] = ""
+				if pinyin:
+					pi_phons[i] = ""
+		except:
+			("Assuming {0} is unknown".format(phonpairs[i]))
+
 if zhuyin and pinyin:
 	for i in range(0, len(hanzichars)):
 		phonpairs.append((hanzichars[i], phonperchar[0][i], phonperchar[1][i]))
@@ -116,16 +137,17 @@ else:
 
 verbose_print(phonpairs)
 
-if zhuyin:
+if zhuyin and text:
 	print("Text in Zhuyin: {0}".format(" ".join(zh_phons)))
-if pinyin:
+if pinyin and text:
 	print("Text in Pinyin: {0}".format(" ".join(pi_phons)))
+
 
 if html:
 	htmltext+="<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<meta charset=\"utf8\">\n\t\t<link rel=\"stylesheet\" href=\"style.css\">\n\t</head>\n\t<body>\n"
 	htmltext+="\t\t<table>\n\t\t\t<tbody>\n"
 	if ontop:
-		if zhuyin:
+		if zhuyin and not pinyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
 					htmltext+="\n\t\t\t\t<tr>"
@@ -143,7 +165,7 @@ if html:
 				for i in range(0, len(phonpairs)):
 					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
 				htmltext+="\n\t\t\t\t</tr>"
-		elif pinyin:
+		elif pinyin and not zhuyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
 					htmltext+="\n\t\t\t\t<tr>"
@@ -160,6 +182,33 @@ if html:
 				htmltext+="\n\t\t\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
+				htmltext+="\n\t\t\t\t</tr>"
+		elif zhuyin and pinyin:
+			if vertical:
+				for i in range(0, len(phonpairs)):
+					htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t\t\t\t<td class=\"pinyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t\t<tr>"
+					splitphons = ""
+					for x in phonpairs[i][2]:
+						splitphons+="{0}<br>".format(x)
+					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
+					htmltext+="\n\t\t\t\t</tr>"
+			elif not vertical:
+				htmltext+="\t\t\t\t<tr>"
+				htmltext+="\n\t\t\t\t<tr>"
+				for i in range(0, len(phonpairs)):
+					htmltext+="\n\t\t\t\t\t<td class=\"pinyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t\t\t\t<td></td>"
+				htmltext+="\n\t\t\t\t</tr>"
+				for i in range(0, len(phonpairs)):
+					splitphons = ""
+					for x in phonpairs[i][2]:
+						splitphons+="{0}<br>".format(x)
+					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
 				htmltext+="\n\t\t\t\t</tr>"
 	else:
 		if zhuyin and not pinyin:
