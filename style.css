@@ -1,5 +1,4 @@
 .hanzi{
-  padding: 0em;
   font-size: 2em;
   line-height: 1em;
   vertical-align: middle;
@@ -13,7 +12,7 @@
 }
 .pinyin{
     font-family: Times, "Times New Roman", Georgia, serif;
-    padding: 0em;
+
   text-align: center;
   line-height: 1em;
   vertical-align: top;
