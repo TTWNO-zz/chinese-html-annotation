@@ -11,11 +11,12 @@ def usage():
 	print("-p, --pinyin adds Pinyin")
 	print("-n, --tones replace Pinyin with just tone marks instead")
 	print("-t, --text outputs text")
-	primt("-m, --markup outputs HTML representation of the data")
+	print("-m, --markup outputs HTML representation of the data")
 	print("-a, --accented makes Pinyin accented [as oppossed to numbered]")
 	print("-i, --input \"chinese string\"")
 	print("-h, --help this help menu")
 	print("-k, --know \"012\" the characters where a 2 is placed will not be transfered to phonetics in HTML...")
+	print("-d, --indent set html indent")
 	print("... where a 1 is placed it will only create tone marlks")
 	print("... where a 0 is place the standard pronunciation will be shown")
 	print("--verbose for debuging (must be placed first)")
@@ -42,7 +43,7 @@ def get_pinyin_class(s):
 		return "pinyin"
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "ki:zopvnmphta", ["help", "input=", "markup", "vertical", "zhuyin", "pinyin", "accented", "verbose", "ontop", "text", "know=", "tones"])
+	opts, args = getopt.getopt(sys.argv[1:], "kdi:zopvnmphta", ["help", "input=", "markup", "vertical", "zhuyin", "pinyin", "accented", "verbose", "ontop", "text", "know=", "tones", "indent"])
 except getopt.GetoptError as err:
 	# print help information and exit:
 	print(err) # will print something like "option -a not recognized"
@@ -59,6 +60,7 @@ accented = False
 ontop = False
 text = False
 remove_chars = False
+indent_by = 1
 known_chars = []
 
 for o, a in opts:
@@ -171,146 +173,143 @@ if pinyin and text:
 
 
 if html:
-	htmltext+="<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<meta charset=\"utf8\">\n\t\t<link rel=\"stylesheet\" href=\"style.css\">\n\t</head>\n\t<body>\n"
-	htmltext+="\t\t<table>\n\t\t\t<tbody>\n"
+	htmltext+="<table>\n\t<tbody>"
 	if ontop:
 		if zhuyin and not pinyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t</tr>"
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t</tr>"
 			elif not vertical:
-				htmltext+="\t\t\t\t<tr>"
+				htmltext+="\t\t<tr>"
 				for i in range(0, len(phonpairs)):
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-				htmltext+="\n\t\t\t\t</tr>"
-				htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+				htmltext+="\n\t\t</tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-				htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+				htmltext+="\n\t\t</tr>"
 		elif pinyin and not zhuyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t</tr>"
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t</tr>"
 			elif not vertical:
-				htmltext+="\t\t\t\t<tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-				htmltext+="\n\t\t\t\t</tr>"
-				htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+				htmltext+="\n\t\t</tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-				htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+				htmltext+="\n\t\t</tr>"
 		elif zhuyin and pinyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t</tr>"
-					htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
 					splitphons = ""
 					for x in phonpairs[i][2]:
 						splitphons+="{0}<br>".format(x)
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
-					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(splitphons)
+					htmltext+="\n\t\t</tr>"
 			elif not vertical:
-				htmltext+="\t\t\t\t<tr>"
-				htmltext+="\n\t\t\t\t<tr>"
+				htmltext+="\n\t\t<tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t\t<td></td>"
-				htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t\t<td></td>"
+				htmltext+="\n\t\t</tr>"
 				for i in range(0, len(phonpairs)):
 					splitphons = ""
 					for x in phonpairs[i][2]:
 						splitphons+="{0}<br>".format(x)
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
-				htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(splitphons)
+				htmltext+="\n\t\t</tr>"
 	else:
 		if zhuyin and not pinyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
-					htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t<tr>"
 					splitphons = ""
 					for x in phonpairs[i][1]:
 						splitphons+="{0}<br>".format(x)
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
-					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(splitphons)
+					htmltext+="\n\t\t</tr>"
 			elif not vertical:
-				htmltext+="\t\t\t\t<tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					splitphons = ""
 					for x in phonpairs[i][1]:
 						splitphons+="{0}<br>".format(x)
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
-				htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(splitphons)
+				htmltext+="\n\t\t</tr>"
 		elif pinyin and not zhuyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t</tr>"
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t</tr>"
 			elif not vertical:
-				htmltext+="\t\t\t\t<tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
 				htmltext+="\n\t\t\t\t</tr>"
 				htmltext+="\n\t\t\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-				htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+				htmltext+="\n\t\t</tr>"
 		elif pinyin and zhuyin:
 			if vertical:
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t<tr>"
 					splitphons = ""
 					for x in phonpairs[i][2]:
 						splitphons+="{0}<br>".format(x)
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
-					htmltext+="\n\t\t\t\t</tr>"
-					htmltext+="\n\t\t\t\t<tr>"
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t</tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(splitphons)
+					htmltext+="\n\t\t</tr>"
+					htmltext+="\n\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t</tr>"
 			elif not vertical:
-				htmltext+="\t\t\t\t<tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					splitphons = ""
 					for x in phonpairs[i][2]:
 						splitphons+="{0}<br>".format(x)
-					htmltext+="\n\t\t\t\t\t<td class=\"hanzi\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][0])
-					htmltext+="\n\t\t\t\t\t<td class=\"zhuyin\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(splitphons)
-				htmltext+="\n\t\t\t\t</tr>"
-				htmltext+="\n\t\t\t\t<tr>"
+					htmltext+="\n\t\t\t<td class=\"hanzi\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][0])
+					htmltext+="\n\t\t\t<td class=\"zhuyin\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(splitphons)
+				htmltext+="\n\t\t</tr>"
+				htmltext+="\n\t\t<tr>"
 				for i in range(0, len(phonpairs)):
 					pinyin_class = get_pinyin_class(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t\t\t<span>{0}</span>\n\t\t\t\t\t</td>".format(phonpairs[i][1])
-					htmltext+="\n\t\t\t\t\t<td></td>"
-				htmltext+="\n\t\t\t\t</tr>"
-	htmltext+="\n\t\t\t</tbody>\n\t\t</table>\n"
-	htmltext+="\t</body>\n</html>"
-
+					htmltext+="\n\t\t\t<td class=\""+pinyin_class+"\">\n\t\t\t\t<span>{0}</span>\n\t\t\t</td>".format(phonpairs[i][1])
+					htmltext+="\n\t\t\t<td></td>"
+				htmltext+="\n\t\t</tr>"
+	htmltext+="\n\t</tbody>\n</table>\n"
 	print(htmltext)
