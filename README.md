@@ -1,4 +1,4 @@
 # chinese-html-annotation
 Add annotation to your Chinese with HTML
 
-Project Abandoned.
+Project abandoned, see https://github.com/TTWNO/epub-chinese-ruby
